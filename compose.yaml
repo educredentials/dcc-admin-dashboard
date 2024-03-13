@@ -35,7 +35,7 @@ services:
       - SMTP_PORT=1025
       - SMTP_USER=somename
       - SMTP_PASS=somepass
-      - EMAIL_FROM=Digital Credentials Consortium <someone@mit.edu>
+      - EMAIL_FROM=eduCredentials @ SURF based on Digital Credentials Consortium <someone@educredentials.eu>
       - CLAIM_PAGE_URL=http://poc3.educredentials.eu:8080
       - PAYLOAD_PUBLIC_SERVER_URL=http://poc3.educredentials.eu:3000
     ports:
