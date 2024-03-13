@@ -3,7 +3,7 @@ services:
     image: digitalcredentials/workflow-coordinator:0.1.0
     environment:
       - ENABLE_STATUS_SERVICE=false
-      - PUBLIC_EXCHANGE_HOST=http://localhost:3000/api 
+      - PUBLIC_EXCHANGE_HOST=http://poc3.educredentials.eu:3000/api 
       - TENANT_TOKEN_LEF_TEST=UNPROTECTED
     ports:
       - "4005:4005"
@@ -13,6 +13,8 @@ services:
       - TENANT_SEED_LEF_TEST=z1AeiPT496wWmo9BG2QYXeTusgFSZPNG3T9wNeTtjrQ3rCB
   transactions:
     image: digitalcredentials/transaction-service:0.1.0
+    ports:
+      - "4004:4004"
   payload:
     build: 
       context: .
@@ -23,40 +25,60 @@ services:
       - redis
       - mongo
     environment:
-      - COORDINATOR_URL=http://coordinator:4005
+      - COORDINATOR_URL=http://poc3.educredentials.eu:4005
       - REDIS_URL=redis
       - REDIS_PORT=6379
       - MONGODB_URI=mongodb://root:example@mongo:27017/
-      - PAYLOAD_SECRET=aaaaaaaaaaaaaaaaaaaaaaaa
+      - PAYLOAD_SECRET=TESTING
       - TENANT_NAME=lef_test
-      - SMTP_HOST=somehost
+      - SMTP_HOST=mailhog
+      - SMTP_PORT=1025
       - SMTP_USER=somename
       - SMTP_PASS=somepass
       - EMAIL_FROM=Digital Credentials Consortium <someone@mit.edu>
-      - CLAIM_PAGE_URL=http://localhost:8080
-      - PAYLOAD_PUBLIC_SERVER_URL=http://localhost:3000
+      - CLAIM_PAGE_URL=http://poc3.educredentials.eu:8080
+      - PAYLOAD_PUBLIC_SERVER_URL=http://poc3.educredentials.eu:3000
     ports:
       - "3000:3000"
     volumes:
       - ./src:/home/node/app/src
   claim-page:
-    image: digitalcredentials/admin-dashboard-claim-page:0.1.0
+    build:
+      context: ../admin-dashboard-claim-page/
+      dockerfile: Dockerfile
+    image: educredentials/admin-dashboard-claim-page:0.1.0 
+    # rebuild a new image with specifics for POC3
+    # image: digitalcredentials/admin-dashboard-claim-page:0.1.0
     container_name: "ad-claim-page"
     depends_on: 
       - payload
     ports:
       - "8080:8080"
+    environment:
+      - PUBLIC_PAYLOAD_URL=http://poc3.educredentials.eu:3000/api
   redis:
     image: redis:alpine
     container_name: ad-redis
     environment:
-      - ALLOW_EMPTY_PASSWORD=${ALLOW_EMPTY_PASSWORD:-yes}
-    ports:
-      - "6379:6379"
+     - DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG 
+     - REDIS_ALLOW_REMOTE_CONNECTIONS=no
+     - ALLOW_EMPTY_PASSWORD=${ALLOW_EMPTY_PASSWORD:-yes}
+    expose:
+      - 6379
   mongo:
     image: mongo
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+# added extra mailserver for testing
+  mailhog:
+    image: mailhog/mailhog
+    container_name: ad-mailhog
+    logging:
+      driver: 'none'  # disable saving logs
+    ports:
+      - 1025:1025 # smtp server
+      - 8025:8025 # web ui
+
 volumes:
   transactions:
