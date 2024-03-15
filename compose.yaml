@@ -44,7 +44,7 @@ services:
     image: digitalcredentials/workflow-coordinator:0.1.0
     environment:
       - ENABLE_STATUS_SERVICE=false
-      - PUBLIC_EXCHANGE_HOST=http://dashboard.poc3.educredentials.eu/api 
+      - PUBLIC_EXCHANGE_HOST=https://dashboard.poc3.educredentials.eu/api 
       - TENANT_TOKEN_LEF_TEST=UNPROTECTED
       - VIRTUAL_HOST=coordinator.poc3.educredentials.eu
       - LETSENCRYPT_HOST=coordinator.poc3.educredentials.eu
@@ -74,7 +74,7 @@ services:
       - redis
       - mongo
     environment:
-      - COORDINATOR_URL=http://coordinator.poc3.educredentials.eu
+      - COORDINATOR_URL=https://coordinator.poc3.educredentials.eu
       - REDIS_URL=redis
       - REDIS_PORT=6379
       - MONGODB_URI=mongodb://root:example@mongo:27017/
@@ -85,8 +85,8 @@ services:
       - SMTP_USER=somename
       - SMTP_PASS=somepass
       - EMAIL_FROM=eduCredentials @ SURF based on Digital Credentials Consortium <someone@educredentials.eu>
-      - CLAIM_PAGE_URL=http://claim.poc3.educredentials.eu
-      - PAYLOAD_PUBLIC_SERVER_URL=http://dashboard.poc3.educredentials.eu
+      - CLAIM_PAGE_URL=https://claim.poc3.educredentials.eu
+      - PAYLOAD_PUBLIC_SERVER_URL=https://dashboard.poc3.educredentials.eu
       - VIRTUAL_HOST=dashboard.poc3.educredentials.eu
       - LETSENCRYPT_HOST=dashboard.poc3.educredentials.eu
       - VIRTUAL_PORT=3000
@@ -111,7 +111,7 @@ services:
     expose:
       - 8080
     environment:
-      - PUBLIC_PAYLOAD_URL=http://dashboard.poc3.educredentials.eu/api
+      - PUBLIC_PAYLOAD_URL=https://dashboard.poc3.educredentials.eu/api
       - VIRTUAL_HOST=claim.poc3.educredentials.eu
       - LETSENCRYPT_HOST=claim.poc3.educredentials.eu
       - VIRTUAL_PORT=8080
