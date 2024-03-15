@@ -6,17 +6,18 @@ services:
       - "433:433"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - certs:/etc/nginx/certs \
-      - vhost:/etc/nginx/vhost.d \
-      - html:/usr/share/nginx/html \
+      - conf:/etc/nginx/conf.d
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - certs:/etc/nginx/certs:ro
 
   nginx-proxy-acme:
     image: nginxproxy/acme-companion
-    volumes-from:
-      - nginx-proxy 
+
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - certs:/etc/nginx/certs:rw
       - acme:/etc/acme.sh
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       - DEFAULT_EMAIL=no-reply@surf.nl
     
@@ -127,4 +128,9 @@ services:
       - VIRTUAL_PORT=8025
 volumes:
   transactions:
+  conf:
+  vhost:
+  html:
+  certs:
+  acme:
 
