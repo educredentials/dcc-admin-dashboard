@@ -1,20 +1,34 @@
 services:
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
   coordinator:
     image: digitalcredentials/workflow-coordinator:0.1.0
     environment:
       - ENABLE_STATUS_SERVICE=false
-      - PUBLIC_EXCHANGE_HOST=http://poc3.educredentials.eu:3000/api 
+      - PUBLIC_EXCHANGE_HOST=http://dashboard.poc3.educredentials.eu/api 
       - TENANT_TOKEN_LEF_TEST=UNPROTECTED
-    ports:
-      - "4005:4005"
+      - VIRTUAL_HOST=coordinator.poc3.educredentials.eu
+      - VIRTUAL_PORT=4005
+    # - PUBLIC_EXCHANGE_HOST=http://poc3.educredentials.eu:3000/api 
+    # ports:
+    #   - "4005:4005"
+    expose:
+      - 4005
   signing:
     image: digitalcredentials/signing-service:0.2.0
     environment:
       - TENANT_SEED_LEF_TEST=z1AeiPT496wWmo9BG2QYXeTusgFSZPNG3T9wNeTtjrQ3rCB
   transactions:
     image: digitalcredentials/transaction-service:0.1.0
-    ports:
-      - "4004:4004"
+    # ports:
+    #   - "4004:4004"
+    expose:
+      - 4004
   payload:
     build: 
       context: .
@@ -25,7 +39,7 @@ services:
       - redis
       - mongo
     environment:
-      - COORDINATOR_URL=http://poc3.educredentials.eu:4005
+      - COORDINATOR_URL=http://coordinator.poc3.educredentials.eu
       - REDIS_URL=redis
       - REDIS_PORT=6379
       - MONGODB_URI=mongodb://root:example@mongo:27017/
@@ -36,10 +50,14 @@ services:
       - SMTP_USER=somename
       - SMTP_PASS=somepass
       - EMAIL_FROM=eduCredentials @ SURF based on Digital Credentials Consortium <someone@educredentials.eu>
-      - CLAIM_PAGE_URL=http://poc3.educredentials.eu:8080
-      - PAYLOAD_PUBLIC_SERVER_URL=http://poc3.educredentials.eu:3000
-    ports:
-      - "3000:3000"
+      - CLAIM_PAGE_URL=http://claim.poc3.educredentials.eu
+      - PAYLOAD_PUBLIC_SERVER_URL=http://dashboard.poc3.educredentials.eu
+      - VIRTUAL_HOST=dashboard.poc3.educredentials.eu
+      - VIRTUAL_PORT=3000
+    # ports:
+    #   - "3000:3000"
+    expose:
+      - 3000
     volumes:
       - ./src:/home/node/app/src
   claim-page:
@@ -52,10 +70,14 @@ services:
     container_name: "ad-claim-page"
     depends_on: 
       - payload
-    ports:
-      - "8080:8080"
+    # ports:
+    #   - "8080:8080"
+    expose:
+      - 8080
     environment:
-      - PUBLIC_PAYLOAD_URL=http://poc3.educredentials.eu:3000/api
+      - PUBLIC_PAYLOAD_URL=http://dashboard.poc3.educredentials.eu/api
+      - VIRTUAL_HOST=claim.poc3.educredentials.eu
+      - VIRTUAL_PORT=8080
   redis:
     image: redis:alpine
     container_name: ad-redis
@@ -76,9 +98,15 @@ services:
     container_name: ad-mailhog
     logging:
       driver: 'none'  # disable saving logs
-    ports:
-      - 1025:1025 # smtp server
-      - 8025:8025 # web ui
-
+    # ports:
+    #   - 1025:1025 # smtp server
+    #   - 8025:8025 # web ui
+    expose:
+      - 1025
+      - 8025
+    environment:
+      - VIRTUAL_HOST=mail.poc3.educredentials.eu
+      - VIRTUAL_PORT=8025
 volumes:
   transactions:
+
