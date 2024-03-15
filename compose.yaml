@@ -3,9 +3,22 @@ services:
     image: nginxproxy/nginx-proxy
     ports:
       - "80:80"
+      - "433:433"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
+      - certs:/etc/nginx/certs \
+      - vhost:/etc/nginx/vhost.d \
+      - html:/usr/share/nginx/html \
 
+  nginx-proxy-acme:
+    image: nginxproxy/acme-companion
+    volumes-from: nginx-proxy 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - acme:/etc/acme.sh
+    environment:
+      - DEFAULT_EMAIL=no-reply@surf.nl
+    
   coordinator:
     image: digitalcredentials/workflow-coordinator:0.1.0
     environment:
@@ -13,6 +26,7 @@ services:
       - PUBLIC_EXCHANGE_HOST=http://dashboard.poc3.educredentials.eu/api 
       - TENANT_TOKEN_LEF_TEST=UNPROTECTED
       - VIRTUAL_HOST=coordinator.poc3.educredentials.eu
+      - LETSENCRYPT_HOST=coordinator.poc3.educredentials.eu
       - VIRTUAL_PORT=4005
     # - PUBLIC_EXCHANGE_HOST=http://poc3.educredentials.eu:3000/api 
     # ports:
@@ -53,6 +67,7 @@ services:
       - CLAIM_PAGE_URL=http://claim.poc3.educredentials.eu
       - PAYLOAD_PUBLIC_SERVER_URL=http://dashboard.poc3.educredentials.eu
       - VIRTUAL_HOST=dashboard.poc3.educredentials.eu
+      - LETSENCRYPT_HOST=dashboard.poc3.educredentials.eu
       - VIRTUAL_PORT=3000
     # ports:
     #   - "3000:3000"
@@ -77,6 +92,7 @@ services:
     environment:
       - PUBLIC_PAYLOAD_URL=http://dashboard.poc3.educredentials.eu/api
       - VIRTUAL_HOST=claim.poc3.educredentials.eu
+      - LETSENCRYPT_HOST=claim.poc3.educredentials.eu
       - VIRTUAL_PORT=8080
   redis:
     image: redis:alpine
@@ -106,6 +122,7 @@ services:
       - 8025
     environment:
       - VIRTUAL_HOST=mail.poc3.educredentials.eu
+      - LETSENCRYPT_HOST=mail.poc3.educredentials.eu
       - VIRTUAL_PORT=8025
 volumes:
   transactions:
