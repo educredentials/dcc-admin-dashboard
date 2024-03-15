@@ -35,7 +35,7 @@ export default buildConfig({
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
-            port: 587,
+            port: process.env.SMTP_PORT,
             secure: false, // use TLS
             tls: {
                 // do not fail on invalid certs
